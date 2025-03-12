@@ -1,0 +1,2 @@
+# autoclickar
+klickar automatiskt
