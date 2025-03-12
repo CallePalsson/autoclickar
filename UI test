@@ -34,7 +34,7 @@ def start_clicking():
         status_label.config(text="Autoclicker igång...")
         
         # Startar autoclicker i en separat tråd så att GUI:t inte fryser
-        threading.Thread(target=start_autoclicker, args=(interval,)).start()
+        threading.Thread(target=start_autoclicker, args=(interval,), daemon=True).start()
 
     except ValueError:
         # Om användaren inte skriver ett giltigt tal
@@ -52,7 +52,13 @@ def toggle_clicking_with_hotkey():
         stop_autoclicker()  # Stoppar klickandet
     else:
         status_label.config(text="Autoclicker igång...")
-        threading.Thread(target=start_autoclicker, args=(interval,)).start()  # Startar autoclicker i bakgrunden
+        threading.Thread(target=start_autoclicker, args=(interval,), daemon=True).start()  # Startar autoclicker i bakgrunden
+
+# Funktion för att lyssna på hotkey i en separat tråd
+def listen_for_hotkey():
+    while True:
+        if keyboard.is_pressed('F8'):  # När användaren trycker på F8
+            toggle_clicking_with_hotkey()  # Växla start och stopp av autoclickern
 
 # Skapa huvudfönstret
 root = tk.Tk()
@@ -76,9 +82,8 @@ stop_button.pack()
 status_label = tk.Label(root, text="Autoclicker stoppad")
 status_label.pack()
 
-# Lyssna på hotkey (F8) för att starta eller stoppa autoclickern
-keyboard.add_hotkey('F8', toggle_clicking_with_hotkey)
+# Starta en separat tråd för att lyssna på hotkey
+threading.Thread(target=listen_for_hotkey, daemon=True).start()
 
 # Starta UI
 root.mainloop()
-
