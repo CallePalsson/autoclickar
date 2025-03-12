@@ -2,6 +2,7 @@ import pyautogui
 import time
 import threading
 import tkinter as tk
+import keyboard  # För att lyssna på hotkeys
 
 # Global variabel för att styra programmet
 clicking = False
@@ -43,6 +44,16 @@ def start_clicking():
 def stop_clicking():
     stop_autoclicker()  # Stoppar klickandet
 
+# Funktion för att aktivera och stoppa autoclickern med hotkey (F8)
+def toggle_clicking_with_hotkey():
+    global clicking
+    interval = float(entry_interval.get())
+    if clicking:
+        stop_autoclicker()  # Stoppar klickandet
+    else:
+        status_label.config(text="Autoclicker igång...")
+        threading.Thread(target=start_autoclicker, args=(interval,)).start()  # Startar autoclicker i bakgrunden
+
 # Skapa huvudfönstret
 root = tk.Tk()
 root.title("Autoclicker")
@@ -65,5 +76,9 @@ stop_button.pack()
 status_label = tk.Label(root, text="Autoclicker stoppad")
 status_label.pack()
 
+# Lyssna på hotkey (F8) för att starta eller stoppa autoclickern
+keyboard.add_hotkey('F8', toggle_clicking_with_hotkey)
+
 # Starta UI
 root.mainloop()
+
