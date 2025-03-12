@@ -2,88 +2,88 @@ import pyautogui
 import time
 import threading
 import tkinter as tk
-import keyboard  # För att lyssna på hotkeys
+import keyboard  # For hotkeys
 
-# Global variabel för att styra programmet
+# Global variable to control the clicking
 clicking = False
 
-# Funktion som startar autoclickern
+# Function that starts autoclicking with a user-defined interval
 def start_autoclicker(interval):
     global clicking
     clicking = True
     while clicking:
-        pyautogui.click()  # Klickar på musen
-        time.sleep(interval)  # Väntar enligt användarens inställning
+        pyautogui.click()  # Click the mouse
+        time.sleep(interval)  # Wait for the user-defined interval before clicking again
 
-# Funktion som stoppar autoclickern
+# Function to stop autoclicking
 def stop_autoclicker():
     global clicking
     clicking = False
-    status_label.config(text="Autoclicker stoppad")
+    status_label.config(text="Autoclicker stopped")
 
-# Funktion som körs när användaren klickar på "Starta Klickning"
+# Function to start clicking (from button click in GUI)
 def start_clicking():
     try:
-        # Hämtar intervallet från användarens input
+        # Get the interval from the user input
         interval = float(entry_interval.get())
         if interval <= 0:
-            status_label.config(text="Vänligen ange ett positivt tal för intervallet.")
+            status_label.config(text="Please enter a positive number for the interval.")
             return
 
-        # Uppdatera status
-        status_label.config(text="Autoclicker igång...")
+        # Update the status label
+        status_label.config(text="Autoclicker running...")
         
-        # Startar autoclicker i en separat tråd så att GUI:t inte fryser
+        # Start the clicking process in a separate thread
         threading.Thread(target=start_autoclicker, args=(interval,), daemon=True).start()
 
     except ValueError:
-        # Om användaren inte skriver ett giltigt tal
-        status_label.config(text="Vänligen ange ett giltigt numeriskt värde för intervallet.")
+        # Handle invalid user input
+        status_label.config(text="Please enter a valid number for the interval.")
 
-# Funktion som körs när användaren klickar på "Stoppa Klickning"
+# Function to stop clicking (from button click in GUI)
 def stop_clicking():
-    stop_autoclicker()  # Stoppar klickandet
+    stop_autoclicker()  # Stop the clicking
 
-# Funktion för att aktivera och stoppa autoclickern med hotkey (F8)
+# Function to toggle clicking with hotkey (F8)
 def toggle_clicking_with_hotkey():
     global clicking
     interval = float(entry_interval.get())
     if clicking:
-        stop_autoclicker()  # Stoppar klickandet
+        stop_autoclicker()  # Stop clicking
     else:
-        status_label.config(text="Autoclicker igång...")
-        threading.Thread(target=start_autoclicker, args=(interval,), daemon=True).start()  # Startar autoclicker i bakgrunden
+        status_label.config(text="Autoclicker running...")
+        threading.Thread(target=start_autoclicker, args=(interval,), daemon=True).start()  # Start clicking in the background
 
-# Funktion för att lyssna på hotkey i en separat tråd
+# Function to listen for the hotkey (F8) in a separate thread
 def listen_for_hotkey():
     while True:
-        if keyboard.is_pressed('F8'):  # När användaren trycker på F8
-            toggle_clicking_with_hotkey()  # Växla start och stopp av autoclickern
+        if keyboard.is_pressed('F8'):  # When F8 is pressed
+            toggle_clicking_with_hotkey()  # Toggle start/stop of autoclicker
 
-# Skapa huvudfönstret
+# Create the main window (GUI)
 root = tk.Tk()
 root.title("Autoclicker")
 
-# Skapa UI-komponenter
-label_interval = tk.Label(root, text="Klickintervall (sekunder):")
+# Create GUI components
+label_interval = tk.Label(root, text="Click Interval (seconds):")
 label_interval.pack()
 
 entry_interval = tk.Entry(root)
-entry_interval.insert(0, "0.1")  # Standardvärde 0.1 sek
+entry_interval.insert(0, "0.1")  # Default to 0.1 seconds
 entry_interval.pack()
 
-start_button = tk.Button(root, text="Starta Klickning", command=start_clicking)
+start_button = tk.Button(root, text="Start Clicking", command=start_clicking)
 start_button.pack()
 
-stop_button = tk.Button(root, text="Stoppa Klickning", command=stop_clicking)
+stop_button = tk.Button(root, text="Stop Clicking", command=stop_clicking)
 stop_button.pack()
 
-# Statusetikett för att visa om autoclickern är aktiv eller stoppad
-status_label = tk.Label(root, text="Autoclicker stoppad")
+# Status label to show whether autoclicker is active or stopped
+status_label = tk.Label(root, text="Autoclicker stopped")
 status_label.pack()
 
-# Starta en separat tråd för att lyssna på hotkey
+# Start a separate thread to listen for the hotkey (F8)
 threading.Thread(target=listen_for_hotkey, daemon=True).start()
 
-# Starta UI
+# Start the GUI
 root.mainloop()
