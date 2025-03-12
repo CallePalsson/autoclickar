@@ -1,0 +1,69 @@
+import pyautogui
+import time
+import threading
+import tkinter as tk
+
+# Global variabel för att styra programmet
+clicking = False
+
+# Funktion som startar autoclickern
+def start_autoclicker(interval):
+    global clicking
+    clicking = True
+    while clicking:
+        pyautogui.click()  # Klickar på musen
+        time.sleep(interval)  # Väntar enligt användarens inställning
+
+# Funktion som stoppar autoclickern
+def stop_autoclicker():
+    global clicking
+    clicking = False
+    status_label.config(text="Autoclicker stoppad")
+
+# Funktion som körs när användaren klickar på "Starta Klickning"
+def start_clicking():
+    try:
+        # Hämtar intervallet från användarens input
+        interval = float(entry_interval.get())
+        if interval <= 0:
+            status_label.config(text="Vänligen ange ett positivt tal för intervallet.")
+            return
+
+        # Uppdatera status
+        status_label.config(text="Autoclicker igång...")
+        
+        # Startar autoclicker i en separat tråd så att GUI:t inte fryser
+        threading.Thread(target=start_autoclicker, args=(interval,)).start()
+
+    except ValueError:
+        # Om användaren inte skriver ett giltigt tal
+        status_label.config(text="Vänligen ange ett giltigt numeriskt värde för intervallet.")
+
+# Funktion som körs när användaren klickar på "Stoppa Klickning"
+def stop_clicking():
+    stop_autoclicker()  # Stoppar klickandet
+
+# Skapa huvudfönstret
+root = tk.Tk()
+root.title("Autoclicker")
+
+# Skapa UI-komponenter
+label_interval = tk.Label(root, text="Klickintervall (sekunder):")
+label_interval.pack()
+
+entry_interval = tk.Entry(root)
+entry_interval.insert(0, "0.1")  # Standardvärde 0.1 sek
+entry_interval.pack()
+
+start_button = tk.Button(root, text="Starta Klickning", command=start_clicking)
+start_button.pack()
+
+stop_button = tk.Button(root, text="Stoppa Klickning", command=stop_clicking)
+stop_button.pack()
+
+# Statusetikett för att visa om autoclickern är aktiv eller stoppad
+status_label = tk.Label(root, text="Autoclicker stoppad")
+status_label.pack()
+
+# Starta UI
+root.mainloop()
